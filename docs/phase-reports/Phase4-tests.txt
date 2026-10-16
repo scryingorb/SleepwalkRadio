@@ -1,0 +1,68 @@
+Start testing: Oct 16 15:48 Pacific Daylight Time
+----------------------------------------------------------
+1/3 Testing: Phase1
+1/3 Test: Phase1
+Command: "<project>/build/Release/SleepwalkRadioTests.exe"
+Directory: <project>/build
+"Phase1" start time: Oct 16 15:48 Pacific Daylight Time
+Output:
+----------------------------------------------------------
+PASS: 97978 checks; Phase 1 parameters, state, audio matrix, editor lifecycle
+<end of output>
+Test time =   2.39 sec
+----------------------------------------------------------
+Test Passed.
+"Phase1" end time: Oct 16 15:48 Pacific Daylight Time
+"Phase1" time elapsed: 00:00:02
+----------------------------------------------------------
+
+2/3 Testing: Phase2DSP
+2/3 Test: Phase2DSP
+Command: "<project>/build/Release/SleepwalkRadioTests.exe" "--dsp"
+Directory: <project>/build
+"Phase2DSP" start time: Oct 16 15:48 Pacific Daylight Time
+Output:
+----------------------------------------------------------
+latency 44100 Hz: 314 samples (7.12018 ms)
+latency 48000 Hz: 337 samples (7.02083 ms)
+latency 88200 Hz: 579 samples (6.56463 ms)
+latency 96000 Hz: 625 samples (6.51042 ms)
+latency 192000 Hz: 1201 samples (6.25521 ms)
+wow frequency RMS deviation 2.18081 Hz, successive-cycle change 0.00410408; flutter 3.55162 Hz, change 0.1759
+saturation third/fundamental -12.2376 dB
+warmth max gain at 0.05 peak: 3.4356 dB
+warmth max gain at 0.25 peak: 1.72885 dB
+warmth max gain at 0.8 peak: -4.59266 dB
+age max: 10kHz -23.3576 dB; 100Hz -0.013763 dB
+2x FIR saturation alias reduction 44100 Hz at 14100 Hz: 97.7927 dB
+2x FIR saturation alias reduction 48000 Hz at 18000 Hz: 78.762 dB
+hiss max RMS -56.4268 dBFS
+rapid automation DC max adjacent step 0.000193194
+60s stereo/192k max settings: 2.29353s wall time (3.82255% of realtime, harness included), peak 1.41811
+PASS: 797129 DSP checks
+<end of output>
+Test time =   2.92 sec
+----------------------------------------------------------
+Test Passed.
+"Phase2DSP" end time: Oct 16 15:48 Pacific Daylight Time
+"Phase2DSP" time elapsed: 00:00:02
+----------------------------------------------------------
+
+3/3 Testing: Phase3Editor
+3/3 Test: Phase3Editor
+Command: "<project>/build/Release/SleepwalkRadioTests.exe" "--editor"
+Directory: <project>/build
+"Phase3Editor" start time: Oct 16 15:48 Pacific Daylight Time
+Output:
+----------------------------------------------------------
+Overlay CPU render: 1.46429 ms/frame (offscreen, 960x560)
+PASS: 13246 editor checks; all controls, gestures, state, layout, renders, lifecycle and audio isolation
+<end of output>
+Test time =   0.88 sec
+----------------------------------------------------------
+Test Passed.
+"Phase3Editor" end time: Oct 16 15:48 Pacific Daylight Time
+"Phase3Editor" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 16 15:48 Pacific Daylight Time

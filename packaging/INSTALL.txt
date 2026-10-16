@@ -1,0 +1,40 @@
+SleepwalkRadio 1.0.0-rc.1 - RELEASE CANDIDATE
+Windows 10 or newer, x64; a VST3-compatible x64 host is required.
+
+This is a test candidate, not a verified stable release. Native DAW playback,
+automation/session recall, listening quality and clean-machine installation
+remain UNVERIFIED. Back up projects before evaluating it.
+
+INSTALLER
+Close your audio applications. Run the Setup executable and approve the normal
+administrator prompt. It installs the complete plugin bundle into:
+C:\Program Files\Common Files\VST3\SleepwalkRadio.vst3
+Rescan VST3 plugins in your DAW and insert SleepwalkRadio on an audio track.
+Uninstall through Windows Installed Apps. Close your DAW before uninstalling.
+Do not install over a manually customized bundle without backing it up first.
+
+PORTABLE ZIP
+Extract the ZIP. Copy the whole SleepwalkRadio.vst3 directory (not just the
+inner binary) into the system VST3 folder above. Administrator rights may be
+required. Alternatively use a custom VST3 folder supported by your host.
+To remove a manual installation, remove only that SleepwalkRadio.vst3 bundle.
+Do not manually delete other plugins or the parent VST3 directory.
+
+USAGE
+Start with low Warmth, Wobble and Flutter settings. Age softens the high end;
+Hiss is independent. Mix blends with aligned dry audio. Output adjusts gain.
+Bypass On restores aligned unity dry; Bypass Off enables the tape processing.
+Shift-drag for fine adjustment, double-click to reset, click values to type.
+Tab/arrow keys operate controls; Space toggles Bypass. Motion Off affects only
+the display. Fixed latency is 337 samples (7.02 ms) at 48 kHz.
+
+No Python, Visual Studio, JUCE or CMake installation is needed to use the plugin.
+The Microsoft C++ runtime is statically linked. This candidate is unsigned;
+there is no verified publisher signature. Do not disable security protections.
+
+LICENSE AND SOURCE
+SleepwalkRadio is licensed under AGPL-3.0-only. See LICENSE and
+THIRD_PARTY_NOTICES.md. Obtain the matching SleepwalkRadio-1.0.0-rc.1-Source.zip
+alongside the binary download; it contains project sources, build scripts,
+and the pinned JUCE source. Binary and source archives must be distributed
+together. No warranty is provided. See RELEASE_NOTES.md for validation status.

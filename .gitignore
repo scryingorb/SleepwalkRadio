@@ -1,0 +1,8 @@
+/build/
+/.deps/
+/.tools/
+/.vs/
+/dist/
+/packaging/stage/
+*.user
+*.suo
