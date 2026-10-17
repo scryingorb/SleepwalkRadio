@@ -1,6 +1,6 @@
 # SleepwalkRadio
 
-**1.1.0-dev - Dream Transmission. Local development build, not a published release.**
+**1.1.0 - Dream Transmission. Local development build, not a published release.**
 
 Dreamy tape coloration in the Midnight Receiver interface: compensated saturation, organic wow/flutter, worn tone, colored hiss and aligned dry/wet blending. The panel retains eight knobs. To keep it simple, **Age also controls transient blur and irregular dropouts**, and **Wobble adds gentle stereo amplitude drift**. Zero character settings remain exactly neutral after the reported delay.
 
@@ -10,7 +10,7 @@ Dreamy tape coloration in the Midnight Receiver interface: compensated saturatio
 
 Requires Windows 10 or newer, x64, and an x64 VST3-compatible DAW. Close your DAW and copy the entire compiled `build/SleepwalkRadio_artefacts/Release/VST3/SleepwalkRadio.vst3` bundle into `C:\Program Files\Common Files\VST3`, replacing the prior SleepwalkRadio bundle. Administrator rights are required. Rescan or restart the host. No Python, JUCE, CMake or Visual Studio is required to use it; the runtime is statically linked.
 
-This phase creates no installer or release package. Existing 1.0.0-rc.1 files in dist/ are historical builds and do not contain Dream Transmission. The follow-up source commit and push are user-authorized; no new tag or GitHub release is included.
+The user authorized the 1.1.0 release with an installer, portable VST3, corresponding source and checksums. See RELEASE_NOTES.md for downloads and outstanding validation. Historical 1.0.0-rc.1 packages do not contain Dream Transmission.
 
 Use Warmth for density, Wobble for slow irregular pitch and stereo drift, Flutter for faster instability, and Age for progressively worn/blurred/damaged tape. Hiss remains independently controlled. Mix blends with aligned dry audio; Output applies even at Mix zero. Bypass On restores aligned unity dry. Shift-drag is fine adjustment, double-click resets, and clicking a value opens text entry. Tab/arrow keys operate knobs; Space toggles Bypass. Motion Off affects visuals only.
 
@@ -152,7 +152,7 @@ Nonfinite input is sanitized; the existing +/-16 emergency bound remains. Ordina
 
 ## Stable identity and state
 
-Product/target: `SleepwalkRadio`; manufacturer code: `Swrd`; plugin code: `Swr1`; bundle ID: `local.sleepwalkradio.effect`. The manufacturer metadata `SleepwalkRadio` is a project-local technical label, **not a user-supplied company identity**. Preserve these values in later phases; changing them can break host session recall. MIDI input/output are disabled, VST3 category is `Fx`, and only matching mono/stereo buses are accepted. Double precision processing is not advertised. Numeric host/Windows product version is 1.1.0; development designation is 1.1.0-dev; parameter IDs, ranges, defaults, version hints, and schema remain compatible with Phase 1. Old nondefault sessions activate their corresponding effects.
+Product/target: `SleepwalkRadio`; manufacturer code: `Swrd`; plugin code: `Swr1`; bundle ID: `local.sleepwalkradio.effect`. The manufacturer metadata `SleepwalkRadio` is a project-local technical label, **not a user-supplied company identity**. Preserve these values in later phases; changing them can break host session recall. MIDI input/output are disabled, VST3 category is `Fx`, and only matching mono/stereo buses are accepted. Double precision processing is not advertised. Numeric host/Windows product version is 1.1.0; development designation is 1.1.0; parameter IDs, ranges, defaults, version hints, and schema remain compatible with Phase 1. Old nondefault sessions activate their corresponding effects.
 
 | ID | Range | Default | Parameter version hint |
 |---|---|---|---|

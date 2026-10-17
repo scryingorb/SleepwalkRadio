@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '1.0.0-rc.1'
+VERSION = '1.1.0'
 PREFIX = f'SleepwalkRadio-{VERSION}'
 
 
@@ -38,7 +38,7 @@ def main():
     bundle = ROOT / 'build/SleepwalkRadio_artefacts/Release/VST3/SleepwalkRadio.vst3'
     binary = bundle / 'Contents/x86_64-win/SleepwalkRadio.vst3'
     manifest = (bundle / 'Contents/Resources/moduleinfo.json').read_text()
-    for expected in ('"Version": "1.0.0"', 'ABCDEF019182FAEB5377726453777231',
+    for expected in ('"Version": "1.1.0"', 'ABCDEF019182FAEB5377726453777231',
                      'ABCDEF011234ABCD5377726453777231'):
         if expected not in manifest:
             raise RuntimeError(f'Incorrect VST3 identity/version: {expected}')

@@ -138,3 +138,7 @@ The user's Dream Transmission request supersedes the earlier packaging/release t
 
 - October 16 2026: confirmed dreamy warped tape, simple controls, broad source use, SleepwalkRadio name, and vintage radio design with a surreal illuminated signal.
 - October 16 2026: proposed Windows VST3 with JUCE and CMake, six phases, and repository status files as the implementation workflow. Toolchain and host details remain to be verified.
+
+- October 16 2026: after the Dream Transmission source push, user requested release with installer. Prepare and publish 1.1.0-rc.1 as a prerelease with matching source and checksums; manual stable-release gates remain unverified.
+
+- October 16 2026: user explicitly corrected the release designation: publish v1.1.0 as a regular release, not a prerelease. This supersedes the earlier prerelease-only publication gate; disclose incomplete manual checks.

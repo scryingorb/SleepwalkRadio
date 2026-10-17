@@ -1,11 +1,11 @@
-#define ReleaseVersion "1.0.0-rc.1"
+#define ReleaseVersion "1.1.0"
 #define StageDir SourcePath + "stage"
 
 [Setup]
 AppId={{B896426C-6524-4681-AD5C-CDBDDF63A1D8}
 AppName=SleepwalkRadio
 AppVersion={#ReleaseVersion}
-AppVerName=SleepwalkRadio {#ReleaseVersion} - Release Candidate
+AppVerName=SleepwalkRadio {#ReleaseVersion}
 AppPublisher=scryingorb
 DefaultDirName={commoncf64}\VST3\SleepwalkRadio.vst3
 DisableDirPage=yes
@@ -20,8 +20,8 @@ LicenseFile={#StageDir}\LICENSE
 InfoBeforeFile={#StageDir}\INSTALL.txt
 OutputDir=..\dist
 OutputBaseFilename=SleepwalkRadio-{#ReleaseVersion}-Windows-x64-Setup
-VersionInfoVersion=1.0.0.0
-VersionInfoProductVersion=1.0.0.0
+VersionInfoVersion=1.1.0.0
+VersionInfoProductVersion=1.1.0.0
 VersionInfoDescription=SleepwalkRadio {#ReleaseVersion} installer
 Compression=lzma2
 SolidCompression=yes

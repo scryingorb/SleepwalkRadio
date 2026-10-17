@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - Dream Transmission
+
+- Revised Warmth, Wobble, Flutter, Age and Hiss for stronger tape character.
+- Integrated upper-band blur/dropouts into Age and gentle stereo drift into Wobble.
+- Added twelve factory presets plus Init while preserving eight controls.
+- Retained state/parameter identity; old settings intentionally sound different.
+- Increased fixed latency to 1201 samples at 48 kHz.
+- Updated installer, portable/source packages and release evidence. Native validation remains incomplete; published as a regular release at the user's direction.
+
 ## 1.0.0-rc.1 — Midnight Receiver
 
 Release candidate for the first Windows x64 VST3 release. Not a stable release.

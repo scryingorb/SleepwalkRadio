@@ -1,6 +1,6 @@
 # SleepwalkRadio - Dream Transmission status
 
-Updated October 16, 2026. Numeric version 1.1.0, development designation 1.1.0-dev.
+Updated October 16, 2026. Numeric version 1.1.0, development designation 1.1.0.
 
 ## Scope and diagnosis
 
@@ -60,4 +60,4 @@ Final verification:
 
 Subjective voicing, perceived loudness on transient sources, hardware playback, host automation/session recall and native Windows display scaling require manual validation. Source tests show measurable changes, not musical quality. Presets are starting points pending listening. Saturation compensation is intentionally level-adaptive and can change transient envelopes. More extreme modulation/deterioration is intentionally audible; intermediate Mix may have chorus coloration.
 
-The user authorized a follow-up source commit and push to main after local build, test and installation verification. No new installer/package, tag or GitHub release is included. Historical 1.0.0-rc.1 packaging remains unchanged and must not be represented as the new build.
+Dream Transmission source was pushed as 809616b. The user subsequently authorized a release with installer. Distribution designation is now 1.1.0, with installer, portable VST3, matching source including JUCE, and checksums. The user explicitly chose a regular release rather than a prerelease; incomplete manual validation remains disclosed. Numeric plugin version and tested audio/UI source are unchanged. Historical 1.0.0-rc.1 packages are separate older builds.
