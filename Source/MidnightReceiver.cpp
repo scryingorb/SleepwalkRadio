@@ -27,6 +27,10 @@ void screw(juce::Graphics& g, float x, float y)
 
 ReceiverLookAndFeel::ReceiverLookAndFeel()
 {
+    setColour(juce::PopupMenu::backgroundColourId, juce::Colour(0xff171a1c));
+    setColour(juce::PopupMenu::textColourId, ivory);
+    setColour(juce::PopupMenu::highlightedBackgroundColourId, juce::Colour(0xff57432a));
+    setColour(juce::PopupMenu::highlightedTextColourId, ivory);
     setColour(juce::TextEditor::backgroundColourId, juce::Colour(0xff151719));
     setColour(juce::TextEditor::textColourId, ivory);
     setColour(juce::TextEditor::highlightColourId, amber.withAlpha(0.3f));
@@ -114,7 +118,7 @@ void ReceiverLookAndFeel::drawButtonBackground(juce::Graphics& g, juce::Button& 
 }
 void ReceiverLookAndFeel::drawButtonText(juce::Graphics& g, juce::TextButton& button, bool, bool)
 {
-    text(g,button.getToggleState()?"MOTION ON":"MOTION OFF",button.getLocalBounds().toFloat().withTrimmedLeft(18),10.5f,ivory,juce::Justification::centred);
+    text(g,button.getComponentID()=="factory-preset" ? button.getButtonText() + "  v" : (button.getToggleState()?"MOTION ON":"MOTION OFF"),button.getLocalBounds().toFloat().withTrimmedLeft(18),button.getComponentID()=="factory-preset"?13.0f:10.5f,ivory,juce::Justification::centred);
 }
 void ReceiverLookAndFeel::drawCornerResizer(juce::Graphics& g,int width,int height,bool,bool)
 {
@@ -208,7 +212,7 @@ void ReceiverFaceplate::paint(juce::Graphics& g)
         g.setColour(brass.withAlpha(0.22f)); g.drawLine(b.getX()+16,352,b.getRight()-16,352,0.7f);
     }
     text(g,"STEREO TAPE PROCESSOR",{48,515,240,18},9.5f,ivory.withAlpha(0.5f));
-    text(g,"SHIFT-DRAG: FINE   /   DOUBLE-CLICK: RESET",{292,515,420,18},9.5f,ivory.withAlpha(0.5f));
+
     screw(g,28,28); screw(g,932,28); screw(g,28,532); screw(g,932,532);
 }
 

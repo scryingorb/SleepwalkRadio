@@ -1,33 +1,52 @@
 # SleepwalkRadio
 
-**1.0.0-rc.1 ? release candidate, not a verified stable release.**
+**1.1.0-dev - Dream Transmission. Local development build, not a published release.**
 
-SleepwalkRadio is a Windows x64 VST3 tape effect: warm saturation, linked stereo wow/flutter, aged tone, independent hiss, aligned dry/wet blending and Output trim, inside the scalable Midnight Receiver interface. All eight controls support automation, editable values, keyboard adjustment and reset. Display motion is optional. Default settings are neutral apart from the reported delay. No factory presets are included.
+Dreamy tape coloration in the Midnight Receiver interface: compensated saturation, organic wow/flutter, worn tone, colored hiss and aligned dry/wet blending. The panel retains eight knobs. To keep it simple, **Age also controls transient blur and irregular dropouts**, and **Wobble adds gentle stereo amplitude drift**. Zero character settings remain exactly neutral after the reported delay.
 
-![Midnight Receiver](docs/phase-reports/MidnightReceiver.png)
+![Midnight Receiver](docs/phase-reports/DreamTransmission.png)
 
 ## Install and use
 
-Requires Windows 10 or newer on x64 and an x64 VST3-compatible DAW. No specific DAW is certified yet. Python, Visual Studio, JUCE and CMake are not required to use the plugin. The C++ runtime is statically linked. These builds are unsigned.
+Requires Windows 10 or newer, x64, and an x64 VST3-compatible DAW. Close your DAW and copy the entire compiled `build/SleepwalkRadio_artefacts/Release/VST3/SleepwalkRadio.vst3` bundle into `C:\Program Files\Common Files\VST3`, replacing the prior SleepwalkRadio bundle. Administrator rights are required. Rescan or restart the host. No Python, JUCE, CMake or Visual Studio is required to use it; the runtime is statically linked.
 
-Close your DAW, run `SleepwalkRadio-1.0.0-rc.1-Windows-x64-Setup.exe` and approve the administrator prompt. The complete bundle goes to `C:\Program Files\Common Files\VST3\SleepwalkRadio.vst3`. Rescan plugins, then insert SleepwalkRadio on an audio track. Uninstall through Windows Installed Apps with your DAW closed.
+This phase creates no installer or release package. Existing 1.0.0-rc.1 files in dist/ are historical builds and do not contain Dream Transmission. The follow-up source commit and push are user-authorized; no new tag or GitHub release is included.
 
-For manual installation, extract `SleepwalkRadio-1.0.0-rc.1-Windows-x64-VST3.zip` and copy the entire `SleepwalkRadio.vst3` folder to that destination (administrator rights may be required), or a custom VST3 directory supported by your host. To remove a manual installation, delete only this plugin's bundle. See [INSTALL.txt](packaging/INSTALL.txt).
+Use Warmth for density, Wobble for slow irregular pitch and stereo drift, Flutter for faster instability, and Age for progressively worn/blurred/damaged tape. Hiss remains independently controlled. Mix blends with aligned dry audio; Output applies even at Mix zero. Bypass On restores aligned unity dry. Shift-drag is fine adjustment, double-click resets, and clicking a value opens text entry. Tab/arrow keys operate knobs; Space toggles Bypass. Motion Off affects visuals only.
 
-Start with low Warmth/Wobble/Flutter and raise Age for softer highs. Hiss is independent. Use Output to loudness-match; gain can exceed full scale. Bypass On returns aligned unity dry, while Off enables processing. Shift-drag adjusts finely, double-click resets, and clicking a value allows text entry. Tab and arrow keys operate controls; Space toggles Bypass.
+**Latency is now 1201 samples (25.02 ms) at 48 kHz**, providing headroom for much deeper tape motion. Hosts should compensate automatically. Existing IDs/defaults/schema-1 states remain readable, but old nonneutral settings intentionally sound different with the new DSP. Re-render old projects deliberately; retain the earlier binary if exact historical sound is needed.
 
-Native DAW playback, automation/session recall, listening quality, actual Windows scaling and clean-machine install/uninstall remain **UNVERIFIED**. The standalone executable is built for development but is not packaged as production-ready. See [release notes and manual QA gates](RELEASE_NOTES.md).
+## Factory voices
+
+The footer selector offers neutral Init and twelve intentionally configured voices:
+
+| Preset | Direction |
+|---|---|
+| Warm Memories | Subtle warmth and gentle wear |
+| Midnight Radio | Distant, dark vintage texture |
+| Melted Cassette | Deep pitch warp |
+| Dream Sequence | Floating, diffused movement |
+| Broken Walkman | Frequent wear and fast instability |
+| VHS Sunset | Warm, moderately unstable color |
+| Underwater | Maximum dark blur, no added hiss |
+| Ghost Transmission | Distant movement and noise |
+| Old Photograph | Restrained nostalgic warmth |
+| Lost Signal | Extreme pitch and deterioration |
+| Analog Heaven | Strong saturation with light wear |
+| Sleepwalking | Signature balance of drift, blur and warmth |
+
+An asterisk marks edits to the selected voice, including host automation. Selecting a preset updates all eight APVTS parameters with UI automation gestures. Hosts see Init plus twelve programs. Sessions save the preset identity **and actual edited values**; reopening never reapplies factory values over saved edits. Loading a preset intentionally changes the current sound. Existing states without preset metadata display Init with an asterisk when nonneutral. Factory values are in `Source/FactoryPresets.h`; subjective voicing still needs human listening.
 
 ## Troubleshooting
 
-- Plugin missing: use an x64 VST3 host, check its scan paths, copy the whole bundle and rescan. Do not rename the inner binary or copy it alone.
-- Installation denied: the standard system folder requires administrator rights. A host-supported custom VST3 path is an alternative for the portable package.
-- Update/uninstall fails: close hosts using the plugin and retry. Do not delete unrelated files in the VST3 directory.
-- Audio seems delayed: fixed latency is 337 samples at 48 kHz. Enable host delay compensation; this is not a zero-latency monitoring effect.
-- Default sounds unchanged: this is intentional. Raise the character/movement controls; verify Bypass is Off and Mix is above zero.
-- Loudness or clipping: reduce Output/input level and compare at matched loudness. Warmth compensation depends on signal level.
-- Motion is distracting: choose Motion Off; sound and parameter editing are unaffected.
-- Security warning: this candidate has no publisher signature. Verify checksums and source; do not disable security protections.
+- Missing plugin: use an x64 VST3 host and copy the complete bundle, then rescan/restart.
+- File replacement denied: close applications using SleepwalkRadio and approve administrator access.
+- Default sounds unchanged: intentional; raise character controls and verify Bypass Off / Mix above zero.
+- Delay: enable host delay compensation; this is not a zero-latency monitoring effect.
+- Output clipping: reduce Output/input gain. Positive Output can exceed full scale; this is not a mastering limiter.
+- Preset name has an asterisk: values differ from that factory voice. Saved edits are retained on recall.
+- Old sessions sound different: mappings and latency changed intentionally; parameter compatibility does not mean sonic identity.
+- Native DAW/mouse/DPI behavior and listening quality remain separate manual checks. No new host validation pass is claimed.
 
 ## Build prerequisites
 
@@ -102,42 +121,38 @@ Base editor: **960 x 560 logical pixels**, proportional resizing from **768 x 44
 
 The meter uses a lock-free, approximate snapshot of actual output peak level, published only while a visualization observer is registered. UI code never reads DSP buffers. The decorative needle drift uses Wobble/Flutter amounts and UI-only oscillators, not the exact tape delay trajectory. The trace is stylized level-driven feedback, not an oscilloscope or spectrum analyser. Tuning numbers are explicitly labelled decorative, not radio frequencies.
 
-Animation is capped at 30 Hz while active. Idle/hidden editors poll at 4 Hz without continuously repainting the panel; the timer is destroyed when the editor closes. **Motion Off** stops the timer and audio-level publication while keeping every audio control functional. This per-instance UI preference survives editor reopening, but is deliberately not a ninth host parameter and is not serialized into schema 1. No audio-engine changes or latency changes were made for the interface.
+Animation is capped at 30 Hz while active. Idle/hidden editors poll at 4 Hz without continuously repainting the panel; the timer is destroyed when the editor closes. **Motion Off** stops the timer and audio-level publication while keeping every audio control functional. This per-instance UI preference survives editor reopening, but is deliberately not a ninth host parameter and is not serialized into schema 1. The interface itself does not process audio; Dream Transmission changes the engine as described below.
 
 `Phase3Editor` tests all eight controls, text/keyboard automation gestures, state restoration, isolation between instances, resize bounds, DPI render sizes, motion-off behavior, repeated reopening and sample-exact audio with/without metering. Images are written under `build/receiver-*.png`. Run just this target with `ctest --test-dir build -C Release -R Phase3Editor --output-on-failure`.
 
-Phase 3 verification: Windows x64 Release VST3 and standalone builds passed; all three CTest suites passed (908,353 checks). See the [saved log](docs/phase-reports/Phase3-tests.txt) and [actual JUCE render](docs/phase-reports/MidnightReceiver.png). Native DAW, Windows display-scale interaction and listening checks remain pending.
+Historical Phase 3 verification: Windows x64 Release VST3 and standalone builds passed; all three CTest suites passed (908,353 checks). See the [saved log](docs/phase-reports/Phase3-tests.txt) and [actual JUCE render](docs/phase-reports/MidnightReceiver.png). Native DAW, Windows display-scale interaction and listening checks remain pending.
 
 ## Tape engine
 
-Signal path: input -> 2x FIR-oversampled saturation -> shared variable-delay transport -> two-pole tone -> hiss -> linear dry/wet -> Output -> aligned bypass crossfade.
+Signal path: 2x FIR-oversampled saturation -> shared fractional-delay transport -> worn tone/blur/dropouts -> hiss -> aligned linear Mix -> Output -> aligned bypass crossfade. Existing architecture and parameter count are preserved.
 
-| Control | DSP mapping |
+| Control | Dream Transmission mapping |
 |---|---|
-| Warmth | Normalized `w`: drive `1 + 3w²`, tanh with compensation `(1 + 0.5w)/drive`, blended by `w` with an aligned clean path. Zero is exactly clean. |
-| Wobble | Up to +/-4 ms delay deviation, scaled quadratically. Weighted 0.23/0.371/0.073 Hz oscillators plus smooth seeded random wandering; one transport for both channels. |
-| Flutter | Up to +/-0.15 ms deviation, scaled quadratically, weighted 6.31 and 9.73 Hz oscillators. |
-| Age | Two cascaded one-pole lowpasses; cutoff moves exponentially from 18 kHz to 2.5 kHz (capped below Nyquist). Crossfade from clean to filtered by Age. Zero is exactly clean; bass/DC preserved. |
-| Hiss | Seeded xorshift noise shaped by 10 kHz lowpass and 1.2 kHz highpass; amplitude `0.004h²`. Independent of Age; identical noise in both channels maintains the centre image. |
-| Mix | Linear interpolation between latency-aligned original audio and processed audio. Zero excludes all wet processing and hiss. |
-| Output | -12 to +12 dB after Mix; applies at Mix zero too. |
-| Bypass | 10 ms crossfade to latency-aligned original audio, ignoring Output. Host bypass callback uses the same path and keeps histories running. |
+| Warmth | Drive `1 + 15w^1.2`, tanh, square-root wet character blend; stereo-linked input/output energy compensation (180 ms) with 40 ms gain smoothing and a feed-forward drive-ramp ceiling. |
+| Wobble | Up to +/-18 ms bounded transport deviation, depth `w^1.35`; irregular smooth random wander plus slow phase-modulated components. Rate multiplier `1 + 2.2w^2` makes the upper range more dramatic. Stereo amplitude drift is bounded to +/-14% times Wobble, with no channel crossfeed or differential phase. |
+| Flutter | Up to +/-0.7 ms, depth `f^1.2`; 6.31/9.73 Hz components plus independent smooth random jitter at 8.7 Hz. |
+| Age | Exponential 18 kHz to 850 Hz two-pole tone rolloff with gentle low-band body; two short allpass diffusers affect the upper band only, preserving bass. Smooth gain wear and seeded, irregular 20-110 ms dropout envelopes increase with Age. Maximum event attenuation remains below 85%; no forced long silence. |
+| Hiss | Seeded, shaped noise (10 kHz lowpass minus 1.2 kHz lowpass), amplitude `0.018h^1.35`. Independent of Age, silent at zero, center-correlated. |
+| Mix | Linear blend with latency-aligned original; zero excludes all coloration/noise. |
+| Output | -12 to +12 dB after Mix. |
+| Bypass | Smoothed, aligned unity dry, ignoring Output; host bypass uses the same path. |
 
-All controls use sample-by-sample linear ramps: 150 ms for Wobble/Flutter depth, 10 ms for Bypass, 30 ms otherwise (Output ramps in dB). Restored values follow those ramps while processing; prepare/reset starts at current values and clears histories. Parameters are sampled atomically once per host block, so host automation is block-timed rather than sample-offset automation. Large or changing host blocks are processed in preallocated chunks of at most 1024 samples without callback allocation.
+Parameters ramp per sample: Wobble/Flutter 150 ms, Bypass 10 ms, others 30 ms (Output in dB). All history/diffusion buffers are allocated in prepare. Processing uses preallocated chunks up to 1024 samples, supporting zero/tiny/variable/oversized host blocks without callback allocation. No file access, locking or UI drawing in processBlock.
 
-The transport uses bounded four-point cubic interpolation. Dry and bypass always retain the same fixed delay as neutral wet: `ceil(sampleRate * 0.006) + oversamplingLatency` samples. The exact integer value is set in `prepareToPlay` and reported to the host; changing knobs never changes it. Default and neutral audio are bit-exact after this delay. Nonzero modulation intentionally moves wet relative to dry, so intermediate Mix settings can produce chorus/comb coloration. The FIR oversampling filter adds some high-frequency coloration when Warmth is enabled. No zero-latency bypass or live-monitoring mode is provided.
+Latency is `ceil(sampleRate * 0.024) + 49` samples: 1108 at 44.1 kHz, 1201 at 48 kHz, 2166 at 88.2 kHz, 2353 at 96 kHz, and 4657 at 192 kHz. The 49 samples come from retained 2x FIR oversampling. Delay histories reserve 70 ms, enough for the full bounded movement range. Neutral Mix and settled bypass are exact after latency; nonzero modulation intentionally colors intermediate Mix with chorus-like interference.
 
-Measured latency: 314 samples at 44.1 kHz (7.120 ms), 337 at 48 kHz (7.021 ms), 579 at 88.2 kHz (6.565 ms), 625 at 96 kHz (6.510 ms), and 1201 at 192 kHz (6.255 ms). The oversampling stage accounts for 49 samples; the remaining delay provides room for bounded tape motion.
+Finite tail is 100 ms for transport, filters and short diffusion; enabled Hiss continues while the host processes silence. Prepare/reset restarts independent fixed seeds and clears histories, making reset renders deterministic. Sessions store parameters and selected preset, not evolving delay/noise/filter history. Arbitrary resume is not guaranteed sample-identical.
 
-Release characterization measured 97.8/78.8 dB less folded third harmonic than native-rate tanh at 44.1/48 kHz for a 10 kHz, 0.8-peak test tone at maximum Warmth. This supports the 2x oversampling choice but is not a broadband alias-free guarantee. At maximum Warmth, measured 1 kHz sine RMS gain changes were +3.44 dB at 0.05 peak, +1.73 dB at 0.25 peak, and -4.59 dB at 0.8 peak: compensation is approximate and level-dependent. Maximum Hiss measured -56.4 dBFS RMS at 48 kHz. Loudness-match listening comparisons. See the [saved test report](docs/phase-reports/Phase2-tests.txt) for results.
-
-The declared finite tail is 50 ms for buffer/filter decay. Hiss can continue during silence while the host processes the plugin; it does not request an infinite tail. Reset clears delay/filter/oversampling histories and restarts fixed, independent noise/transport seeds. State saves parameters, not the evolving tape position, random generator position, or filter histories. Repeated renders from the same reset are reproducible; arbitrary session resume is not a promise of sample-identical modulation/noise.
-
-Nonfinite input becomes zero. A +/-16 safety bound on input/output prevents pathological host samples from poisoning histories; normal audio is not peak-normalized or limited to full scale. Output boost can exceed 0 dBFS. The callback has no file I/O, locks, allocation, or logging. Prepare allocates; reset must be called according to the host lifecycle, not concurrently with processing.
+Nonfinite input is sanitized; the existing +/-16 emergency bound remains. Ordinary Output boost can exceed full scale. This is not a loudness standard meter or safety limiter. Saturation energy matching is approximate for transient material and stereo-linked; loudness-match listening comparisons. See the Dream Transmission report for measured gain, pitch, tone, continuity and CPU results.
 
 ## Stable identity and state
 
-Product/target: `SleepwalkRadio`; manufacturer code: `Swrd`; plugin code: `Swr1`; bundle ID: `local.sleepwalkradio.effect`. The manufacturer metadata `SleepwalkRadio` is a project-local technical label, **not a user-supplied company identity**. Preserve these values in later phases; changing them can break host session recall. MIDI input/output are disabled, VST3 category is `Fx`, and only matching mono/stereo buses are accepted. Double precision processing is not advertised. Numeric host/Windows product version is 1.0.0; package version is 1.0.0-rc.1; parameter IDs, ranges, defaults, version hints, and schema remain compatible with Phase 1. Old nondefault sessions activate their corresponding effects.
+Product/target: `SleepwalkRadio`; manufacturer code: `Swrd`; plugin code: `Swr1`; bundle ID: `local.sleepwalkradio.effect`. The manufacturer metadata `SleepwalkRadio` is a project-local technical label, **not a user-supplied company identity**. Preserve these values in later phases; changing them can break host session recall. MIDI input/output are disabled, VST3 category is `Fx`, and only matching mono/stereo buses are accepted. Double precision processing is not advertised. Numeric host/Windows product version is 1.1.0; development designation is 1.1.0-dev; parameter IDs, ranges, defaults, version hints, and schema remain compatible with Phase 1. Old nondefault sessions activate their corresponding effects.
 
 | ID | Range | Default | Parameter version hint |
 |---|---|---|---|
@@ -152,7 +167,7 @@ Product/target: `SleepwalkRadio`; manufacturer code: `Swrd`; plugin code: `Swr1`
 
 APVTS is authoritative. Bypass is also returned by `getBypassParameter()`. The editor uses parameter attachments, with gestures for mouse, text, reset, keyboard, and bypass editing. Tab focuses controls, arrow keys adjust, Shift-drag provides fine velocity adjustment, clicking values enables text entry, and double-click resets.
 
-State uses JUCE binary XML with root `SleepwalkRadioState` and `schemaVersion="1"`. It is validated before replacement. Missing known parameters reset to their documented defaults. Wrong roots, absent/older/future schema versions, duplicate or unknown parameter IDs, missing/non-numeric/nonfinite/out-of-range values, nonboolean bypass, malformed or oversized (>1 MiB) payloads are rejected without applying any settings. No unversioned legacy format exists. Host state save/restore uses APVTS locks outside the audio callback; do not call serialization from the audio thread. Parameter restoration is validation-atomic, not a promise of sample-atomic multi-parameter transitions.
+State uses JUCE binary XML with root `SleepwalkRadioState` and `schemaVersion="1"`. Optional root property `presetIndex` stores 0-12; missing metadata defaults to Init, invalid metadata rejects the restore. Older states remain readable; older binaries ignore this new root property. It is validated before replacement. Missing known parameters reset to their documented defaults. Wrong roots, absent/older/future schema versions, duplicate or unknown parameter IDs, missing/non-numeric/nonfinite/out-of-range values, nonboolean bypass, malformed or oversized (>1 MiB) payloads are rejected without applying any settings. No unversioned legacy format exists. Host state save/restore uses APVTS locks outside the audio callback; do not call serialization from the audio thread. Parameter restoration is validation-atomic, not a promise of sample-atomic multi-parameter transitions.
 
 ## Manual host checklist
 
@@ -170,20 +185,12 @@ State uses JUCE binary XML with root `SleepwalkRadioState` and `schemaVersion="1
 - Toggle host/plugin bypass, restart transport, and repeatedly open/close the editor.
 - Check standalone device playback separately. Record listening results; do not infer them from tests.
 
-## Packaging from source
+## Historical packaging
 
-After a successful Release build and full CTest run, install Inno Setup 6 and run:
-
-```powershell
-python packaging/package.py
-```
-
-Packaging uses `.deps/JUCE` at the pinned revision. In a source archive this directory is included; configure with `-DFETCHCONTENT_SOURCE_DIR_JUCE="$pwd/.deps/JUCE"`. Python is a packaging tool only. The script checks version/identity, builds the actual installer, writes portable and matching source ZIPs into `dist/`, tests ZIP integrity, verifies binary hashes and creates `SHA256SUMS.txt`. It excludes build tools, Git metadata and generated outputs from source packages. Keep the source ZIP available alongside binaries. Installer runtime testing is a separate required gate.
-
-JUCE/Windows metadata use numeric 1.0.0 because JUCE's numeric version encoder does not accept semantic prerelease suffixes. CMake's `SLEEPWALKRADIO_RELEASE_VERSION`, installer display text, filenames, documentation and any candidate tag use **1.0.0-rc.1**. No stable `v1.0.0` tag is authorized until the manual release gates pass.
+The existing packaging scripts and 1.0.0-rc.1 archives are retained as historical work. They are deliberately version-guarded and are not used for this local DSP development phase. Do not distribute those archives as Dream Transmission.
 
 ## Licensing
 
-Copyright (c) 2026 scryingorb. SleepwalkRadio is released under **AGPL-3.0-only**, with no warranty. See [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md). JUCE is used under its AGPLv3 option. Matching project and pinned JUCE source is included in the source archive; distribute that archive alongside binary packages. Original UI artwork is included under the project license. No supplied reference photographs are embedded.
+Copyright (c) 2026 scryingorb. SleepwalkRadio is released under **AGPL-3.0-only**, with no warranty. See [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md). JUCE is used under its AGPLv3 option. Project source and pinned JUCE source remain available locally. No new source/binary distribution archive is generated in this phase; any later binary distribution must provide matching corresponding source. Original UI artwork is included under the project license. No supplied reference photographs are embedded.
 
 See [PROJECT_STATUS.md](PROJECT_STATUS.md) for actual verification results and pending gates, and [the plan](docs/SleepwalkRadio_Plan.md) for later phases.

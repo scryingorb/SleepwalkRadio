@@ -2,6 +2,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <array>
 #include "TapeEngine.h"
+#include "FactoryPresets.h"
 
 struct ParameterSpec { const char* id; const char* name; float min, max, initial; const char* unit; };
 inline constexpr std::array<ParameterSpec, 8> parameterSpecs {{
@@ -33,11 +34,14 @@ public:
     double getTailLengthSeconds() const override { return engine.tail(); }
     bool hasEditor() const override { return true; }
     juce::AudioProcessorEditor* createEditor() override;
-    int getNumPrograms() override { return 1; }
-    int getCurrentProgram() override { return 0; }
-    void setCurrentProgram(int) override {}
-    const juce::String getProgramName(int) override { return {}; }
+    int getNumPrograms() override { return static_cast<int>(factoryPresets.size()); }
+    int getCurrentProgram() override { return selectedPreset.load(std::memory_order_relaxed); }
+    void setCurrentProgram(int index) override { applyPreset(index, false); }
+    const juce::String getProgramName(int index) override;
     void changeProgramName(int, const juce::String&) override {}
+    void applyPreset(int index, bool gestures = true);
+    bool isPresetModified() const noexcept;
+    juce::String presetDisplayName();
     void getStateInformation(juce::MemoryBlock&) override;
     void setStateInformation(const void*, int) override;
     juce::AudioProcessorValueTreeState parameters;
@@ -59,6 +63,7 @@ private:
     std::atomic<int> visualObservers { 0 };
     void publishVisuals(const juce::AudioBuffer<float>&, bool hostBypassed) noexcept;
     TapeEngine engine;
+    std::atomic<int> selectedPreset { 0 };
     std::array<std::atomic<float>*, 8> rawParameters {};
     TapeEngine::Controls readControls() const noexcept;
     static juce::AudioProcessorValueTreeState::ParameterLayout makeParameters();

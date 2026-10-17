@@ -1,6 +1,6 @@
 # SleepwalkRadio Development Plan
 
-Version 1.3 | October 16 2026 | Status: Phase 4 release candidate; mandatory manual release gates pending
+Version 1.4 | October 16 2026 | Status: Dream Transmission DSP development; local build/install only
 
 This is the working reference for building SleepwalkRadio in small phases. It defines the agreed product, proposed implementation, and evidence needed before moving forward. Future Codex prompts should reference this file and the repository status rather than redesigning the plugin each time.
 
@@ -122,9 +122,11 @@ Create or update PROJECT_STATUS.md with completed work, exact commands and resul
 
 ## Current status
 
-Phase 3 Midnight Receiver is implemented around the unchanged Phase 2 tape engine. Release build and test evidence is recorded in PROJECT_STATUS.md. Offscreen JUCE renders have been visually inspected; native host/display-scale and listening checks remain pending. Prior REAPER access denial was respected. Phase 4 packaging is now implemented; stable publication remains gated. See PROJECT_STATUS.md for current evidence.
+The user's Dream Transmission request supersedes the earlier packaging/release task. Improve the existing DSP and add twelve factory voices while retaining eight controls and the Midnight Receiver design. Age combines tone, blur and dropout wear; Wobble combines pitch and gentle stereo amplitude drift. Do not introduce three extra knobs. Preserve parameter IDs/defaults and read old schema-1 states; document intentional sonic changes and the increased fixed delay. Build/test and local installation are complete. The user subsequently authorized a source commit and push. No new installer, package, tag or GitHub release is included.
 
 ## Decision log
+
+- October 16 2026: user reported weak/unsatisfactory sound and requested Dream Transmission DSP improvements plus twelve presets. User clarified to keep the panel simple. Revised mappings, stereo-linked saturation compensation, richer bounded motion, Age wear/upper-band diffusion/dropouts and colored hiss; preserved eight IDs. Fixed transport base is now 24 ms plus FIR latency. Optional presetIndex metadata remains in schema 1. Old states recall values but intentionally sound different. Local installation only.
 
 - October 16 2026: explicit Phase 4 request authorized final packaging, source commit/push and gated publication. User chose AGPLv3. Implemented candidate installer/ZIP/source workflow. Native access denial and pending manual gates prevent stable publication; no stable tag is created. Repository creation requires separate approval after automatic review rejection.
 

@@ -21,7 +21,8 @@ public:
     }
 };
 
-class SleepwalkRadioEditor final : public juce::AudioProcessorEditor, private juce::Timer
+class SleepwalkRadioEditor final : public juce::AudioProcessorEditor, private juce::Timer,
+                                  public juce::AsyncUpdater, private juce::AudioProcessorListener
 {
 public:
     explicit SleepwalkRadioEditor(SleepwalkRadioProcessor&);
@@ -33,7 +34,12 @@ public:
     bool isAnimationEnabled() const noexcept { return motion.getToggleState(); }
     bool isAnimationTimerRunning() const noexcept { return isTimerRunning(); }
     juce::Slider& control(const juce::String& id);
+    juce::String displayedPresetName() const { return preset.getButtonText(); }
 private:
+    void audioProcessorParameterChanged(juce::AudioProcessor*, int, float) override { triggerAsyncUpdate(); }
+    void audioProcessorChanged(juce::AudioProcessor*, const ChangeDetails&) override { triggerAsyncUpdate(); }
+    void handleAsyncUpdate() override { refreshDisplay(false); }
+    void showPresetMenu();
     void timerCallback() override;
     void refreshDisplay(bool advance);
     SleepwalkRadioProcessor& processor;
@@ -44,6 +50,7 @@ private:
     std::array<ParameterKnob, 8> knobs;
     std::array<juce::Label, 8> labels;
     juce::TextButton motion { "Motion" };
+    juce::TextButton preset { "Init" };
     juce::TooltipWindow tooltips { this, 600 };
     std::array<std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>, 8> attachments;
     uint32_t lastSerial = 0;

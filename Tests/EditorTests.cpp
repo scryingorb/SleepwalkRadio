@@ -136,6 +136,62 @@ int runEditorTests()
             editor.setAnimationEnabled(false);
         }
         check(processor.getVisualObserverCount()==0,"lifecycle no leaked observer");
+        // Factory selection, gesture semantics, modified indication and edited session recall.
+        SleepwalkRadioProcessor presetProcessor;
+        SleepwalkRadioEditor presetEditor(presetProcessor);
+        presetEditor.setAnimationEnabled(false);
+        check(presetProcessor.getNumPrograms()==13,"twelve factory voices plus neutral Init");
+        for(int index=1;index<presetProcessor.getNumPrograms();++index)
+        {
+            auto* warmth=presetProcessor.parameters.getParameter("warmth");
+            GestureProbe probe; warmth->addListener(&probe);
+            presetProcessor.applyPreset(index);
+            check(probe.starts==1 && probe.ends==1,"preset edits bracket host automation");
+            warmth->removeListener(&probe);
+            check(!presetProcessor.isPresetModified(),"factory values are exact");
+            check(presetProcessor.presetDisplayName()==factoryPresets[static_cast<size_t>(index)].name,"factory voice name");
+            check(presetEditor.isUpdatePending(),"preset change schedules UI refresh even without motion");
+            presetEditor.handleUpdateNowIfNeeded();
+            check(presetEditor.displayedPresetName()==presetProcessor.presetDisplayName(),"preset display updates with motion off");
+            for(size_t i=0;i<parameterSpecs.size();++i)
+                check(std::abs(presetEditor.control(parameterSpecs[i].id).getValue()-factoryPresets[static_cast<size_t>(index)].values[i])<0.051f,"preset updates every attachment");
+            warmth->setValueNotifyingHost(0.137f);
+            presetEditor.handleUpdateNowIfNeeded();
+            check(presetProcessor.isPresetModified() && presetEditor.displayedPresetName().endsWith("*"),"automation marks preset modified without timer");
+            juce::MemoryBlock saved; presetProcessor.getStateInformation(saved);
+            presetProcessor.applyPreset(0);
+            presetProcessor.setStateInformation(saved.getData(),static_cast<int>(saved.getSize()));
+            presetEditor.handleUpdateNowIfNeeded();
+            check(presetProcessor.getCurrentProgram()==index && presetProcessor.isPresetModified(),"edited preset identity restored");
+            check(std::abs(presetEditor.control("warmth").getValue()-13.7)<0.051,"recall never overwrites saved edits with factory values");
+            // Every preset runs at all supported release rates, without allocation or nonfinite output.
+            for(double rate:{44100.,48000.,96000.,192000.})
+            {
+                presetProcessor.applyPreset(index); presetProcessor.prepareToPlay(rate,256);
+                juce::AudioBuffer<float> audio(2,256); juce::MidiBuffer midi;
+                for(int block=0;block<40;++block)
+                {
+                    for(int c=0;c<2;++c) for(int sample=0;sample<256;++sample)
+                        audio.setSample(c,sample,0.5f*static_cast<float>(std::sin((block*256+sample)*0.071)));
+                    beginAllocationCheck(); presetProcessor.processBlock(audio,midi);
+                    check(endAllocationCheck()==0,"factory voices allocate no callback memory");
+                    check(std::isfinite(audio.getMagnitude(0,256)) && audio.getMagnitude(0,256)<2,"factory voices finite with bounded peaks");
+                }
+            }
+        }
+        // Reject corrupt preset metadata without changing either saved values or identity.
+        const int priorPreset = presetProcessor.getCurrentProgram();
+        for(const auto* invalid:{"-1","13","2junk","NaN"})
+        {
+            auto state=presetProcessor.parameters.copyState();
+            state.setProperty("schemaVersion",1,nullptr); state.setProperty("presetIndex",invalid,nullptr);
+            juce::MemoryBlock data; juce::AudioProcessor::copyXmlToBinary(*state.createXml(),data);
+            presetProcessor.setStateInformation(data.getData(),static_cast<int>(data.getSize()));
+            check(presetProcessor.getCurrentProgram()==priorPreset,"invalid preset index rejected atomically");
+        }
+        presetProcessor.applyPreset(12);
+        presetEditor.handleUpdateNowIfNeeded();
+        snapshot(presetEditor,"dream-transmission.png",1);
         // Actual dynamic-overlay renders, independent of a native window or audio buffer access.
         BroadcastDisplay display; display.setSize(960,560);
         display.update(0.4f,0.6f,0.3f,false,true,0.033);

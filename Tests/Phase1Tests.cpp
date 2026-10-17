@@ -30,7 +30,7 @@ int main(int argc, char** argv)
         SleepwalkRadioProcessor p;
         require(p.getParameters().size() == 8, "parameter count");
         require(p.getBypassParameter() == p.parameters.getParameter("bypass"), "host bypass contract");
-        require(p.getTailLengthSeconds() == 0.05, "bounded tail declaration");
+        require(p.getTailLengthSeconds() == 0.1, "bounded tail declaration");
         for (const auto& spec : parameterSpecs)
         {
             require(value(p, spec.id) == spec.initial, "default");

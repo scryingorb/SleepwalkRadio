@@ -14,8 +14,8 @@ SleepwalkRadioEditor::SleepwalkRadioEditor(SleepwalkRadioProcessor& p)
     constexpr std::array<int,8> x {42,382,486,146,250,618,722,826};
     constexpr std::array<int,8> focusOrder {1,4,5,2,3,6,7,8};
     static constexpr std::array<const char*,8> tips {{
-        "Smooth tape saturation with compensated drive.", "Slow, shared stereo tape warping.",
-        "Faster, delicate transport instability.", "Softens the high frequencies.",
+        "Smooth tape saturation with compensated drive.", "Slow organic tape warping with gentle stereo drift.",
+        "Faster, delicate transport instability.", "Recording wear: softer highs, hazy attacks and irregular dropouts.",
         "Independent shaped tape hiss; zero is silent.", "Linear blend with aligned dry audio.",
         "Final output trim; also applies at Mix zero.", "Off: tape engine active. On: latency-aligned dry audio. Space toggles bypass." }};
     for (size_t i=0;i<knobs.size();++i)
@@ -51,19 +51,27 @@ SleepwalkRadioEditor::SleepwalkRadioEditor(SleepwalkRadioProcessor& p)
     motion.setToggleState(processor.motionEnabled.load(),juce::dontSendNotification);
     motion.onClick=[this] { setAnimationEnabled(motion.getToggleState()); };
     canvas.addAndMakeVisible(motion); motion.setBounds(798,513,114,25);
+    preset.setComponentID("factory-preset"); preset.setTitle("Factory preset");
+    preset.setTooltip("Select a factory voice. An asterisk means the saved voice has been edited.");
+    preset.setWantsKeyboardFocus(true); preset.setExplicitFocusOrder(10);
+    preset.onClick = [this] { showPresetMenu(); };
+    canvas.addAndMakeVisible(preset); preset.setBounds(290,509,430,32);
     canvas.setSize(960,560); faceplate.setBounds(canvas.getLocalBounds()); display.setBounds(canvas.getLocalBounds());
     setResizable(true,true); setResizeLimits(768,448,1440,840);
     if(auto* resizeConstraints=getConstrainer()) resizeConstraints->setFixedAspectRatio(960.0/560.0);
     setSize(960,560);
+    processor.addListener(this);
     setAnimationEnabled(motion.getToggleState());
 }
 
 SleepwalkRadioEditor::~SleepwalkRadioEditor()
 {
     stopTimer();
+    processor.removeListener(this);
+    cancelPendingUpdate();
     if(observing) processor.removeVisualObserver();
     for(auto& knob:knobs) knob.onValueChange=nullptr;
-    motion.onClick=nullptr;
+    motion.onClick=nullptr; preset.onClick=nullptr;
     // Detach the member LookAndFeel while all children still exist.
     setLookAndFeel(nullptr);
 }
@@ -96,6 +104,7 @@ void SleepwalkRadioEditor::setAnimationEnabled(bool enabled)
 }
 void SleepwalkRadioEditor::refreshDisplay(bool advance)
 {
+    preset.setButtonText(processor.presetDisplayName());
     const auto snapshot=processor.readVisualSnapshot();
     const double now=juce::Time::getMillisecondCounterHiRes();
     const double seconds=juce::jlimit(0.0,0.25,(now-lastTick)*0.001);
@@ -116,4 +125,15 @@ void SleepwalkRadioEditor::timerCallback()
 {
     if(!isShowing()) { startTimerHz(4); return; }
     refreshDisplay(true);
+}
+
+void SleepwalkRadioEditor::showPresetMenu()
+{
+    juce::PopupMenu menu;
+    for (int i = 0; i < processor.getNumPrograms(); ++i)
+        menu.addItem(i + 1, processor.getProgramName(i), true, i == processor.getCurrentProgram());
+    juce::Component::SafePointer<SleepwalkRadioEditor> safe(this);
+    menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&preset), [safe](int result) {
+        if (safe != nullptr && result > 0) { safe->processor.applyPreset(result - 1); safe->refreshDisplay(false); }
+    });
 }

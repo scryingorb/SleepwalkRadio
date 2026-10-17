@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
-project(SleepwalkRadio VERSION 1.0.0 LANGUAGES C CXX)
+project(SleepwalkRadio VERSION 1.1.0 LANGUAGES C CXX)
 # Numeric host/Windows version; candidate status is carried in packages and documentation.
-set(SLEEPWALKRADIO_RELEASE_VERSION "1.0.0-rc.1")
+set(SLEEPWALKRADIO_RELEASE_VERSION "1.1.0-dev")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

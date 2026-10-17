@@ -1,74 +1,63 @@
-# SleepwalkRadio project status
+# SleepwalkRadio - Dream Transmission status
 
-Updated October 16, 2026. Distribution version **1.0.0-rc.1**; numeric host/Windows version **1.0.0**.
+Updated October 16, 2026. Numeric version 1.1.0, development designation 1.1.0-dev.
 
-## Current phase
+## Scope and diagnosis
 
-**Phase 4 release candidate prepared. Stable release is blocked by mandatory manual validation.** User selected AGPLv3. Native DAW, device playback, Windows display-scale interaction and subjective listening remain unverified. Phase 3 history is preserved in `docs/phase-reports/Phase3.md`; Phase 2 DSP evidence remains in its historical reports.
+User reported weak and unsatisfactory sound in real-world use. The original quadratic depth curves gave only 25% maximum depth at half travel; low Wobble/Flutter and Hiss settings were particularly restrained. Warmth combined quadratic drive with an additional linear clean blend and fixed level-dependent compensation. Age was only a two-pole lowpass, with no transient diffusion, wear events or stereo drift. No preset system existed. These effects were measurable, but the mappings hid much of the useful range.
 
-No DSP or UI redesign was needed: source review and the fresh actual render showed no clipping, overlap or parameter changes. The final build statically links the Microsoft C++ runtime. Added a genuine Inno Setup installer, portable VST3 ZIP, corresponding-source ZIP including pinned JUCE, license/notices, SHA256 checksums, release notes and reproducible packaging script.
+The user's panel clarification was to keep it simple. All eight IDs, ranges/defaults and knob positions remain unchanged. Age combines tone wear, upper-band blur and dropout; Wobble combines slow pitch motion and bounded stereo amplitude drift. No extra audio parameters or knobs. Footer now has a radio-styled preset button. Existing faceplate, meter, animation, bypass, scaling and control gestures retained.
 
-## Implemented interface
+## Engine changes
 
-- Original JUCE vector receiver: charcoal brushed metal, bevels, screws, vents, amber tuning glass, decorative ticks, output-level needle, subtle lavender trace and custom machined knobs. No external artwork, assets or dependencies added.
-- All eight existing controls: **Warmth, Age, Hiss / Wobble, Flutter / Mix, Output, Bypass**, grouped by function. Bypass is a two-position rotary with Off/On text. Header indicates ACTIVE/BYPASS.
-- APVTS attachments, editable values, Shift-drag fine adjustment, double-click reset, keyboard arrows, Space for Bypass, visual tab order, focus rings, accessible names and tooltips.
-- Base 960 x 560, proportional bounds 768 x 448 to 1440 x 840. Cached static faceplate and independently updated overlay; vector drawing at device scale.
-- Lock-free atomic snapshot of actual output peak; no UI access to mutable DSP buffers. Decorative needle illustrates Wobble/Flutter settings with UI oscillators, not the exact delay trajectory. Trace is stylized level feedback, not an oscilloscope. No additional audio generator.
-- Active animation 30 Hz; idle/hidden polling 4 Hz without continuous repaint. Motion Off stops the timer and observer publication. Closing unregisters observation and destroys the timer. Motion preference survives editor reopening per instance, but is not serialized or a ninth parameter.
+- Wobble: maximum delay depth 18 ms, power curve 1.35, irregular seeded smooth wander plus phase modulation. Rate grows toward extreme settings (multiplier 1 + 2.2w^2).
+- Flutter: maximum 0.7 ms, power curve 1.2, two fast components plus independent smooth jitter. Both share the existing cubic fractional-delay transport.
+- Warmth: drive 1 + 15w^1.2, square-root character blend, retained 2x FIR oversampling. Stereo-linked input/output energy matching with smoothed compensation and a feed-forward drive-ramp ceiling. No independent channel gain pumping.
+- Age: 18 kHz to 850 Hz exponential tone, mild low-band body, upper-band allpass diffusion, mild dynamic wear and seeded irregular 20-110 ms gain/high-frequency dropouts. Maximum event loss is bounded below 85%, with smooth sin-squared fades. Low settings have rare events. Diffusion deliberately excludes the low band after an initial test caught bass cancellation.
+- Hiss: retained colored/noise generator architecture; stronger perceptual curve 0.018h^1.35. Independent of Age and silent at zero.
+- Stereo drift is amplitude-only (+/-14% times Wobble), with no differential channel delay or crossfeed. Mono stays mono. Original center-correlated Hiss retained.
 
-## Preserved engine, identity and state
+Fixed reported latency increased to ceil(sampleRate * 0.024) + 49: 1108/1201/2166/2353/4657 samples at 44.1/48/88.2/96/192 kHz. At 48 kHz this is 25.0208 ms. Extra delay headroom is required for the deeper transport range; dry/wet/bypass remain aligned. Finite tail is now 100 ms. Old parameter values remain readable, but intentionally produce different sound. Keep the previous binary for exact historical sound.
 
-TapeEngine.cpp/.h are unchanged from Phase 2 (SHA256 B462A3EBDF849EE7B5B2BACB84F59D33EAF91831CBBEAD0C6CB4E63DBC51F354 / 3813A6BA70587788F5BEE2DBC5D6603E3B541BE8A8F570A25DE5507BD22C3FEC). Processing remains oversampled saturation -> shared variable-delay transport -> tone -> hiss -> aligned Mix -> Output -> aligned bypass. Fixed latency remains 337 samples / 7.02083 ms at 48 kHz. See README and Phase2 report for all mappings, smoothing, latency rates and sound limitations.
+All buffers allocate in prepare. No processBlock allocation, locks, filesystem operations or rendering. Fixed random seeds reset deterministically. Noise/delay histories are not serialized. Positive Output can exceed full scale; the plugin is not a mastering limiter.
 
-IDs/order remain warmth, wobble, flutter, age, hiss, mix, output, bypass. Character controls default zero, Mix 100%, Output 0 dB, Bypass false. Ranges, parameter version hints and schema-1 validator/serializer unchanged. State root SleepwalkRadioState. Mono/stereo Fx, no MIDI.
+## Presets and recall
 
-Product/target SleepwalkRadio; manufacturer Swrd; plugin Swr1; bundle local.sleepwalkradio.effect. Component CID ABCDEF019182FAEB5377726453777231; controller CID ABCDEF011234ABCD5377726453777231. Version 1.0.0 manifest confirms stable IDs. Candidate suffix 1.0.0-rc.1 is carried in CMake release-version metadata, installer display text, documentation and package filenames; JUCE numeric version encoding cannot accept semantic prerelease suffixes.
+Neutral Init plus twelve factory voices: Warm Memories, Midnight Radio, Melted Cassette, Dream Sequence, Broken Walkman, VHS Sunset, Underwater, Ghost Transmission, Old Photograph, Lost Signal, Analog Heaven, Sleepwalking. Values are explicit and reviewable in Source/FactoryPresets.h; no random preset generation.
 
-## Build and verification
+Selection changes APVTS parameters and brackets UI host automation gestures. Host programs expose the same list. An asterisk marks any deviation from the selected voice. The optional presetIndex property (0-12) lives in schema-1 state; old states default to Init while retaining every saved value. Restore applies actual saved values, never resets edited values to factory defaults. Invalid preset metadata rejects restoration. Editor notifications use a deferred message-thread refresh independent of animation, including program changes with unchanged parameter values.
 
-Toolchain: C++17, VS 2019 Build Tools 16.11.25 / MSVC 19.29, Windows SDK 10.0.19041, local CMake 3.31.6, JUCE 8.0.12 pinned to 29396c22c93392d6738e021b83196283d6e4d850. No system installation.
+## Verification
 
-Exact PowerShell commands from the project root:
+Exact commands from project root:
 
 ```powershell
 .\.tools\cmake-python\cmake\data\bin\cmake.exe -S . -B build -G 'Visual Studio 16 2019' -A x64 -DFETCHCONTENT_SOURCE_DIR_JUCE="$pwd/.deps/JUCE"
-.\.tools\cmake-python\cmake\data\bin\cmake.exe --build build --config Release --target SleepwalkRadioTests --parallel 4
-.\.tools\cmake-python\cmake\data\bin\ctest.exe --test-dir build -C Release -R Phase3Editor --output-on-failure
 .\.tools\cmake-python\cmake\data\bin\cmake.exe --build build --config Release --parallel 4
 .\.tools\cmake-python\cmake\data\bin\ctest.exe --test-dir build -C Release --output-on-failure
 ```
 
-- Fresh Phase 4 Windows x64 Release build **passed, exit 0**: VST3, standalone, shared code and tests, with static MSVC runtime.
-- Fresh full suite **3/3 passed, 0 failures, 6.20 seconds**: 97,978 Phase1 + 797,129 DSP + 13,246 editor = **908,353 checks**. These counts are from this phase's execution, not copied as new evidence from Phase 3. Most checks are sample assertions. Log: `docs/phase-reports/Phase4-tests.txt` (machine-specific root replaced with `<project>` for public distribution).
-- Matrix covers mono/stereo, 44.1/48/88.2/96/192 kHz, variable/zero/oversized buffers, continuity, extremes, state, bypass, latency and C++ allocation checks. Editor suite covers all eight control attachments, text/keyboard gestures, restoration, resizing, pixel-scale renders, animation off, instance isolation and 30 reopen cycles. Native mouse/host interaction is separately unverified.
-- Fresh offscreen base render visually inspected; no clipping or layout defect found. Pixel-scale rendering checks passed. Native Windows DPI interaction remains unverified.
-- DSP stress: 60 seconds stereo at 192 kHz processed in **2.29353 seconds**, all finite, peak **1.41811**. Overlay render **1.46429 ms/frame**. Harness measurements are not a DAW CPU/dropout guarantee.
-- VST3 manifest helper loaded the fresh module and emitted stable IDs/version 1.0.0. `dumpbin /dependents` lists Windows system DLLs only; no VCRUNTIME/MSVCP DLL dependency. No independent pluginval/SDK validator run.
-- Inno Setup compiled an actual PE installer successfully. Portable/source ZIP integrity checked; packaged VST3 SHA256 matches the build. Exact asset hashes are in `dist/SHA256SUMS.txt`.
-- Standalone Computer Use launch denied: **"Computer Use was not approved to use sleepwalkradio"**. No retry. Prior REAPER denial also respected; no native playback or subjective quality claim.
+Tests preserve existing state, latency-aligned neutrality, variable/zero/oversized blocks, mono/stereo, reset, extremes, nonfinite input, deterministic partitioning, bypass, channel clearing and callback allocation checks. Updated characterization assertions match intentional sound changes rather than requiring the old sound. Additional tests cover quarter/half/three-quarter/max modulation, 100 Hz bass retention, upper-band blur impulse energy, dropout continuity/non-silencing, impulse-measured latency, audible midrange modification, pairwise differences between all twelve preset renders, every preset/rate combination, edited recall, invalid metadata and motion-off name/modified updates. All eight registration IDs/defaults remain unchanged.
 
-## Artifacts
+Fresh render: docs/phase-reports/DreamTransmission.png. Native UI access was previously denied, so no retry or native interaction/listening pass is claimed. Actual offscreen rendering and scale/layout tests are distinguished from OS/host testing.
 
-- Installer: `dist/SleepwalkRadio-1.0.0-rc.1-Windows-x64-Setup.exe`.
-- Portable: `dist/SleepwalkRadio-1.0.0-rc.1-Windows-x64-VST3.zip`.
-- Corresponding source: `dist/SleepwalkRadio-1.0.0-rc.1-Source.zip` (project plus full pinned JUCE source, excluding Git metadata).
-- Checksums: `dist/SHA256SUMS.txt`.
-- Standalone build only: `build/SleepwalkRadio_artefacts/Release/Standalone/SleepwalkRadio.exe`. Excluded from downloadable packages because playback is unverified.
-- Preview: `docs/phase-reports/MidnightReceiver.png`.
+Final verification:
 
-Packaging command: `python packaging/package.py`. Inno Setup 6 is required only to build the installer. Use `--reuse-installer` to refresh documentation/source archives without rebuilding an already-tested installer. The installer targets `{commoncf64}\VST3\SleepwalkRadio.vst3`, requires administrator rights, and installs its uninstaller/notices under ProgramData/SleepwalkRadio. It includes no development tools. It uses Inno's tracked-file uninstall, with no recursive wildcard deletion of shared plugin directories. Candidate is unsigned.
+- Windows x64 Release VST3, standalone and tests built successfully, exit 0. VST3 manifest helper loaded version 1.1.0 with unchanged class IDs.
+- Full suite: **3/3 passed, 10.71 seconds, 912,478 assertions**: 97,978 foundation + 797,214 DSP + 17,286 editor/preset. Saved output: docs/phase-reports/DreamTransmission-tests.txt. Most are sample assertions, not independent scenarios.
+- 1 kHz pitch RMS variation at 25/50/75/100%: Wobble **1.46/4.46/12.25/25.75 Hz**, Flutter **2.22/5.10/8.29/11.71 Hz** (8-second fixture). Separate 12-second maximum fixture: wow 25.31 Hz versus prior 2.18; flutter 11.75 versus prior 3.55.
+- Maximum Warmth steady 1 kHz RMS gain at 0.05/0.25/0.8 peak input: **-0.0015/-0.0002/-0.0019 dB**. Transient/source-dependent behavior remains a listening check.
+- Maximum Age: **-54.48 dB at 10 kHz**, **+0.25 dB at 100 Hz**. This includes the combined tone/blur/wear macro, not isolated static EQ. First diffusion design failed bass preservation and was corrected before this pass.
+- Maximum Hiss: **-43.36 dBFS RMS**, versus prior -56.43 dBFS; still independent and exactly disabled at zero/dry/bypass.
+- Maximum Age on 0.25 DC: minimum **0.0467**, largest adjacent change **0.000481**; rapid parameter automation DC maximum step **0.000349**. No forced silence or abrupt event edge in these fixtures.
+- Same-drive, RMS-normalized folded-third-harmonic reduction versus native tanh at 10 kHz: **110.77 dB (44.1 kHz), 29.65 dB (48 kHz)**. This is a specific anti-alias fixture, not a broadband alias-free claim.
+- 60-second stereo 192 kHz maximum-settings stress: **5.273 seconds** wall time (**8.79%** of duration), peak **1.229**, all finite; harness included, concurrent build activity may affect timing. No DAW CPU guarantee. Actual overlay render 2.61 ms/frame.
+- Preset suite caught a stale name with Motion Off; fixed by deferred processor-change notification. All factory choices, modified labels and edited recall now pass.
+- Built plugin SHA256: **98605003229B72AB272027D3DC442ECDF98384EE7496DEFBC2B152F53416A3E6**.
+- Local installation completed successfully after the user authorized terminating the leftover FL Studio process and its exit was confirmed. Installed complete bundle at `C:\Program Files\Common Files\VST3\SleepwalkRadio.vst3`; both files verified against the build by SHA256, metadata version 1.1.0. Prior installed bundle preserved at `build/installed-before-DreamTransmission/SleepwalkRadio.vst3`. No rebuild, package or Git operation was needed for installation.
 
-## Mandatory pending gates
+## Limitations and delivery boundary
 
-Native DAW scan/playback, automation/session recall, latency compensation, mouse/fine/reset/keyboard interaction, actual Windows scaling, subjective listening on vocals/drums/synths/full mixes, multi-instance audio continuity and clean-machine installation remain **UNVERIFIED**. Screen-reader behavior and extended sessions are also unverified. Automated tests cannot establish these. Complete RELEASE_NOTES.md's checklist before stable v1.0.0 publication. No stable tag or stable release has been created.
+Subjective voicing, perceived loudness on transient sources, hardware playback, host automation/session recall and native Windows display scaling require manual validation. Source tests show measurable changes, not musical quality. Presets are starting points pending listening. Saturation compensation is intentionally level-adaptive and can change transient envelopes. More extreme modulation/deterioration is intentionally audible; intermediate Mix may have chorus coloration.
 
-Installer and uninstaller both executed successfully (exit 0) on this development machine. Installed binary matched the build; uninstall removed the bundle and uninstaller. User approved the administrator prompt. Clean-machine and upgrade validation remain pending. Details: `docs/phase-reports/Phase4-packaging.md`.
-
-## Git/GitHub handoff
-
-Initialized a new local main branch; there was no existing repository or remote. Both GitHub connector and git remote lookup found no accessible `scryingorb/SleepwalkRadio` repository. Automatic approval review rejected creating a new public repository because explicit confirmation for that public resource is required. No repository creation, push, tag or asset upload occurred. Once approved, create that repository without initializing unrelated content, set origin, and push main without force. Any downloadable candidate must be marked prerelease and include installer, portable ZIP, source ZIP and checksums. Do not create stable v1.0.0 until manual gates pass.
-
-## Changed files and license
-
-CMake: 1.0.0 numeric version, 1.0.0-rc.1 release metadata, static MSVC runtime. Added packaging scripts, INSTALL.txt, LICENSE (AGPL-3.0-only), third-party notices and 31 license files, CHANGELOG and release notes. Updated README, plan, status and public phase evidence. Source/TapeEngine and existing DSP/control tests unchanged. Historical machine-specific paths normalized before Git review. Build/dependency/tool/dist/staging directories ignored. No presets or additional effects.
+The user authorized a follow-up source commit and push to main after local build, test and installation verification. No new installer/package, tag or GitHub release is included. Historical 1.0.0-rc.1 packaging remains unchanged and must not be represented as the new build.

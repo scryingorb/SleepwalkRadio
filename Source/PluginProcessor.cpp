@@ -89,6 +89,7 @@ void SleepwalkRadioProcessor::getStateInformation(juce::MemoryBlock& destination
 {
     auto state = parameters.copyState();
     state.setProperty("schemaVersion", 1, nullptr);
+    state.setProperty("presetIndex", getCurrentProgram(), nullptr);
     if (auto xml = state.createXml()) copyXmlToBinary(*xml, destination);
 }
 
@@ -99,6 +100,11 @@ void SleepwalkRadioProcessor::setStateInformation(const void* data, int size)
     if (!xml || !xml->hasTagName("SleepwalkRadioState")
         || xml->getStringAttribute("schemaVersion") != "1") return;
     auto incoming = juce::ValueTree::fromXml(*xml);
+    const auto presetText = incoming.getProperty("presetIndex", 0).toString();
+    int restoredPreset = -1;
+    for (size_t i = 0; i < factoryPresets.size(); ++i)
+        if (presetText == juce::String(static_cast<int>(i))) restoredPreset = static_cast<int>(i);
+    if (restoredPreset < 0) return;
     // Build a complete candidate using defaults; never mutate live state during validation.
     juce::ValueTree candidate("SleepwalkRadioState");
     candidate.setProperty("schemaVersion", 1, nullptr);
@@ -126,7 +132,43 @@ void SleepwalkRadioProcessor::setStateInformation(const void* data, int size)
         child.setProperty("value", saved.isValid() ? saved.getProperty("value") : juce::var(spec.initial), nullptr);
         candidate.appendChild(child, nullptr);
     }
+    selectedPreset.store(restoredPreset, std::memory_order_relaxed);
+    // Restore the actual values, never reapply the named preset over saved edits.
     parameters.replaceState(candidate);
+    updateHostDisplay(juce::AudioProcessorListener::ChangeDetails{}.withProgramChanged(true));
+}
+
+const juce::String SleepwalkRadioProcessor::getProgramName(int index)
+{
+    return juce::isPositiveAndBelow(index, getNumPrograms()) ? factoryPresets[static_cast<size_t>(index)].name : "";
+}
+
+void SleepwalkRadioProcessor::applyPreset(int index, bool gestures)
+{
+    if (!juce::isPositiveAndBelow(index, getNumPrograms())) return;
+    selectedPreset.store(index, std::memory_order_relaxed);
+    const auto& values = factoryPresets[static_cast<size_t>(index)].values;
+    for (size_t i = 0; i < values.size(); ++i)
+    {
+        auto* parameter = parameters.getParameter(parameterSpecs[i].id);
+        if (gestures) parameter->beginChangeGesture();
+        parameter->setValueNotifyingHost(parameter->convertTo0to1(values[i]));
+        if (gestures) parameter->endChangeGesture();
+    }
+    updateHostDisplay(juce::AudioProcessorListener::ChangeDetails{}.withProgramChanged(true));
+}
+
+bool SleepwalkRadioProcessor::isPresetModified() const noexcept
+{
+    const auto& values = factoryPresets[static_cast<size_t>(selectedPreset.load(std::memory_order_relaxed))].values;
+    for (size_t i = 0; i < values.size(); ++i)
+        if (std::abs(rawParameters[i]->load(std::memory_order_relaxed) - values[i]) > 0.051f) return true;
+    return false;
+}
+
+juce::String SleepwalkRadioProcessor::presetDisplayName()
+{
+    return getProgramName(getCurrentProgram()) + (isPresetModified() ? " *" : "");
 }
 
 juce::AudioProcessorEditor* SleepwalkRadioProcessor::createEditor() { return new SleepwalkRadioEditor(*this); }
