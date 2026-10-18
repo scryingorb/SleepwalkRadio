@@ -1,16 +1,72 @@
 # SleepwalkRadio
 
-**1.1.0 - Dream Transmission. Local development build, not a published release.**
+Windows VST3 tape effect with saturation, wow and flutter, wear, hiss, and factory presets, built with C++ and JUCE.
+
+## Overview
 
 Dreamy tape coloration in the Midnight Receiver interface: compensated saturation, organic wow/flutter, worn tone, colored hiss and aligned dry/wet blending. The panel retains eight knobs. To keep it simple, **Age also controls transient blur and irregular dropouts**, and **Wobble adds gentle stereo amplitude drift**. Zero character settings remain exactly neutral after the reported delay.
 
-![Midnight Receiver](docs/phase-reports/DreamTransmission.png)
+## Features
 
-## Install and use
+- Add compensated saturation, wow, flutter, and colored hiss.
+- Use Age for worn tone, transient blur, and irregular dropouts.
+- Blend processed and time-aligned dry audio.
+- Choose twelve factory voices plus neutral Init.
+- Restore edited parameter values and preset identity in host sessions.
+- Operate knobs with mouse, keyboard, or text entry.
+
+## Screenshots
+
+![SleepwalkRadio Midnight Receiver editor render](docs/phase-reports/DreamTransmission.png)
+
+Existing offscreen editor render; this is not evidence of native DAW validation.
+
+## Technologies
+
+C++17, JUCE 8.0.12, VST3, CMake, MSVC, and Inno Setup.
+
+## Getting Started
+
+Download the [Windows x64 version 1.1.0 release](https://github.com/scryingorb/SleepwalkRadio/releases/tag/v1.1.0). Run `SleepwalkRadio-1.1.0-Windows-x64-Setup.exe`, or extract `SleepwalkRadio-1.1.0-Windows-x64-VST3.zip` and copy the complete `SleepwalkRadio.vst3` bundle to `C:\Program Files\Common Files\VST3`. Close your DAW first, then rescan its plugins. The release also provides corresponding source and checksums. See [release notes](RELEASE_NOTES.md).
+
+### Build or run from source
+
+- Windows 10 or newer, x64.
+- Visual Studio 2019 16.11 Build Tools (or a compatible newer Visual Studio), with Desktop development with C++, MSVC v142, and Windows SDK 10.0.19041.0 or newer.
+- CMake 3.22 or newer; verified setup uses 3.31.6. C++17 is required.
+- Git and network access for first dependency download. Python is optional, used below to install a project-local CMake.
+- JUCE 8.0.12, pinned to commit `29396c22c93392d6738e021b83196283d6e4d850` in CMake. No moving branch is used.
+
+From the project root in PowerShell, with CMake on PATH:
+
+```powershell
+cmake -S . -B build -G "Visual Studio 16 2019" -A x64
+cmake --build build --config Release --parallel 4
+ctest --test-dir build -C Release --output-on-failure
+```
+
+For Visual Studio 2022, use `-G "Visual Studio 17 2022"` in a fresh build directory. It has not been tested here. CMake downloads the pinned JUCE commit into the build tree by default. For an offline configuration, supply an existing checkout of that exact commit using `-DFETCHCONTENT_SOURCE_DIR_JUCE="C:/path/to/JUCE"`.
+
+Exact setup used on this machine (the bundled CMake 3.20 is too old):
+
+```powershell
+python -m pip install --target .tools/cmake-python cmake==3.31.6
+git clone --depth 1 --branch 8.0.12 https://github.com/juce-framework/JUCE.git .deps/JUCE
+git -C .deps/JUCE rev-parse HEAD
+$cmake = ".\.tools\cmake-python\cmake\data\bin\cmake.exe"
+$ctest = ".\.tools\cmake-python\cmake\data\bin\ctest.exe"
+& $cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DFETCHCONTENT_SOURCE_DIR_JUCE="$pwd/.deps/JUCE"
+& $cmake --build build --config Release --parallel 4
+& $ctest --test-dir build -C Release --output-on-failure
+```
+
+Verify the printed JUCE commit matches the pin above. Dependencies, tools, build outputs, and binaries are ignored; do not commit them.
+
+## Usage
 
 Requires Windows 10 or newer, x64, and an x64 VST3-compatible DAW. Close your DAW and copy the entire compiled `build/SleepwalkRadio_artefacts/Release/VST3/SleepwalkRadio.vst3` bundle into `C:\Program Files\Common Files\VST3`, replacing the prior SleepwalkRadio bundle. Administrator rights are required. Rescan or restart the host. No Python, JUCE, CMake or Visual Studio is required to use it; the runtime is statically linked.
 
-The user authorized the 1.1.0 release with an installer, portable VST3, corresponding source and checksums. See RELEASE_NOTES.md for downloads and outstanding validation. Historical 1.0.0-rc.1 packages do not contain Dream Transmission.
+Version 1.1.0 is published with an installer, portable VST3 ZIP, corresponding source, and checksums. See [release notes](RELEASE_NOTES.md) for outstanding validation. Historical 1.0.0-rc.1 packages do not contain Dream Transmission.
 
 Use Warmth for density, Wobble for slow irregular pitch and stereo drift, Flutter for faster instability, and Age for progressively worn/blurred/damaged tape. Hiss remains independently controlled. Mix blends with aligned dry audio; Output applies even at Mix zero. Bypass On restores aligned unity dry. Shift-drag is fine adjustment, double-click resets, and clicking a value opens text entry. Tab/arrow keys operate knobs; Space toggles Bypass. Motion Off affects visuals only.
 
@@ -47,39 +103,6 @@ An asterisk marks edits to the selected voice, including host automation. Select
 - Preset name has an asterisk: values differ from that factory voice. Saved edits are retained on recall.
 - Old sessions sound different: mappings and latency changed intentionally; parameter compatibility does not mean sonic identity.
 - Native DAW/mouse/DPI behavior and listening quality remain separate manual checks. No new host validation pass is claimed.
-
-## Build prerequisites
-
-- Windows 10 or newer, x64.
-- Visual Studio 2019 16.11 Build Tools (or a compatible newer Visual Studio), with Desktop development with C++, MSVC v142, and Windows SDK 10.0.19041.0 or newer.
-- CMake 3.22 or newer; verified setup uses 3.31.6. C++17 is required.
-- Git and network access for first dependency download. Python is optional, used below to install a project-local CMake.
-- JUCE 8.0.12, pinned to commit `29396c22c93392d6738e021b83196283d6e4d850` in CMake. No moving branch is used.
-
-From the project root in PowerShell, with CMake on PATH:
-
-```powershell
-cmake -S . -B build -G "Visual Studio 16 2019" -A x64
-cmake --build build --config Release --parallel 4
-ctest --test-dir build -C Release --output-on-failure
-```
-
-For Visual Studio 2022, use `-G "Visual Studio 17 2022"` in a fresh build directory. It has not been tested here. CMake downloads the pinned JUCE commit into the build tree by default. For an offline configuration, supply an existing checkout of that exact commit using `-DFETCHCONTENT_SOURCE_DIR_JUCE="C:/path/to/JUCE"`.
-
-Exact setup used on this machine (the bundled CMake 3.20 is too old):
-
-```powershell
-python -m pip install --target .tools/cmake-python cmake==3.31.6
-git clone --depth 1 --branch 8.0.12 https://github.com/juce-framework/JUCE.git .deps/JUCE
-git -C .deps/JUCE rev-parse HEAD
-$cmake = ".\.tools\cmake-python\cmake\data\bin\cmake.exe"
-$ctest = ".\.tools\cmake-python\cmake\data\bin\ctest.exe"
-& $cmake -S . -B build -G "Visual Studio 16 2019" -A x64 -DFETCHCONTENT_SOURCE_DIR_JUCE="$pwd/.deps/JUCE"
-& $cmake --build build --config Release --parallel 4
-& $ctest --test-dir build -C Release --output-on-failure
-```
-
-Verify the printed JUCE commit matches the pin above. Dependencies, tools, build outputs, and binaries are ignored; do not commit them.
 
 ## Run and test
 
@@ -189,8 +212,12 @@ State uses JUCE binary XML with root `SleepwalkRadioState` and `schemaVersion="1
 
 The existing packaging scripts and 1.0.0-rc.1 archives are retained as historical work. They are deliberately version-guarded and are not used for this local DSP development phase. Do not distribute those archives as Dream Transmission.
 
-## Licensing
+## Project Status
 
-Copyright (c) 2026 scryingorb. SleepwalkRadio is released under **AGPL-3.0-only**, with no warranty. See [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md). JUCE is used under its AGPLv3 option. Project source and pinned JUCE source remain available locally. No new source/binary distribution archive is generated in this phase; any later binary distribution must provide matching corresponding source. Original UI artwork is included under the project license. No supplied reference photographs are embedded.
+Released: version 1.1.0, Dream Transmission. Native DAW, real-material listening, and clean-machine validation remain incomplete.
+
+## License
+
+Copyright (c) 2026 scryingorb. SleepwalkRadio is released under **AGPL-3.0-only**, with no warranty. See [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY_NOTICES.md). JUCE is used under its AGPLv3 option. Project source and pinned JUCE source remain available locally. The published 1.1.0 release includes a corresponding Source ZIP; further binary distributions must also provide matching corresponding source. Original UI artwork is included under the project license. No supplied reference photographs are embedded.
 
 See [PROJECT_STATUS.md](PROJECT_STATUS.md) for actual verification results and pending gates, and [the plan](docs/SleepwalkRadio_Plan.md) for later phases.
